@@ -1,0 +1,95 @@
+/*
+*顺序表：
+表的实现     SqList
+表的初始化   InitList
+插入元素	 InsertElem
+删除元素     DeleteElem
+查找次序元素 GetElem
+查找目标元素 LocateElem
+清空表       ClearList
+返回元素个数 ListLength
+是否为空表   ListEmpty
+*/
+#include<iostream>
+using namespace std;
+
+#define MAXSIZE 20
+typedef int ElemType;
+typedef int Status;
+
+typedef struct
+{
+	ElemType *elem;
+	int length;
+	int size;
+}SqList;
+
+Status InitList(SqList &L)
+{
+	L.elem = new ElemType[MAXSIZE];
+	if(!L.elem)
+		return -2;         //OVERFLOW  -2  申请失败,退出
+
+	L.length = 0;         //无数据
+	L.size = MAXSIZE;     //容量设为MAXSIZE
+	return 1;             //初始化成功
+}
+
+Status InsertElem(SqList &L,int i,ElemType e)      //i：1开始
+{
+	if(i<1 || i>L.length+1)
+		return -1;        //ERROR  -1   插入位置不正确
+	if(L.length == MAXSIZE)
+		return -2;        //OVERFLOW  -1   容量已满
+
+	int k;
+	if(i<=L.length)       //插入 从右往左
+	{
+		for(k = L.length-1;k>=i-1;k--)
+			L.elem[k+1] = L.elem[k];   
+	}
+	L.elem[i-1] = e;
+	L.length++;
+	return 1;
+}
+
+Status DeleteElem(SqList &L,int i,ElemType *e)
+{
+	if(i<1 || i>L.length)
+		return -1;        //-1  ERROR  删除位置有误
+	if(L.length == 0)
+		return -1;        //-1  ERROR  表为空
+	
+	int k;
+	*e = L.elem[i-1];     //保存删除数据
+	if(i<L.length)        //删除 从左往右
+	{
+		for(k=i;k<L.length;k++)
+			L.elem[k-1] = L.elem[k];
+	}
+	L.length--;
+	return 1;
+}
+
+Status LocateElem(SqList L,ElemType e)
+{
+	int i=1;
+	ElemType *p = L.elem;
+	while(i <= L.length && *p != e)  //注意顺序
+	{
+		i++;
+		p++;
+	}
+	if(i <= L.length)                //用i来和length判断
+		return i;
+	else 
+		return -1;        
+}
+
+ElemType GetElem(SqList L,int i)
+{
+	if(i<1 || i>L.length)
+		return -1;                   //-1  ERROR  注意L元素中如果有-1的话，选择其他数值表示ERROR
+	
+	return L.elem[i-1];
+}
