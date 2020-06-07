@@ -1,0 +1,69 @@
+#include<iostream>
+#include<stdlib.h>
+using namespace std;
+typedef int ElemType;
+typedef int Status;
+#define MAXSIZE 50
+#define OK 1
+#define ERROR 0
+#define OVERFLOW -1
+
+typedef struct QNode
+{
+	ElemType data;
+	struct QNode * next;
+}QNode,*QNodeP;
+
+typedef struct
+{
+	QNodeP front;
+	QNodeP rear;
+}LinkQ;
+
+Status InitQueue(LinkQ &Q)
+{
+	Q.front = Q.rear = new QNode;
+	if(!Q.front)
+		exit(OVERFLOW);
+	Q.front->next = NULL;
+	return OK;
+}
+
+//判断是否为空队：
+Status QueueEmpty(LinkQ Q)
+{
+	if(Q.front == Q.rear)
+		return OK;
+	else
+		return ERROR;
+}
+
+//入队：尾在动
+Status EnQueue(LinkQ &Q,ElemType e)
+{
+	QNodeP p = new QNode;
+	if(!p)
+		exit(OVERFLOW);
+	p->data = e;
+	p->next = NULL;
+	Q.rear->next = p;
+	Q.rear = p;
+	return OK;
+}
+
+//出队：前在动
+Status DeQueue(LinkQ &Q,ElemType &e)
+{
+	QNodeP p;
+	if(QueueEmpty(Q))
+		return ERROR;
+	p = Q.front->next;
+	e = p->data;
+	Q.front->next = p->next;
+
+	if(Q.rear == p)
+		Q.rear = Q.front;
+	delete(p);
+	p == NULL;
+	return OK;
+}
