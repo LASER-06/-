@@ -1,0 +1,88 @@
+//顺序队列：
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+#define OVERFLOW -2
+#define ERROR 0
+#define OK 1
+typedef int Status;
+typedef int QElemType;
+#define Maxsize 100
+
+//队列定义：
+typedef struct
+{
+    QElemType elem[Maxsize];//队列数组
+    int front,rear;//头尾下标
+}SqQueue;
+
+//初始化：
+Status InitQueue(SqQueue &Q)
+{
+    Q.front=Q.rear=0;
+    return OK;
+}
+
+//！！！队长：
+int QueueLength(SqQueue Q)
+{
+    return (Q.rear-Q.front+Maxsize)%Maxsize;   //队伍查长度算法		
+	//一段Maxsize-front,一段0+rear,在进行整合
+}
+
+//入队：
+Status EnQueue(SqQueue &Q,QElemType e)
+{
+        if((Q.rear+1)%Maxsize==Q.front)   //判断队满（留一个空位）
+                return ERROR;             //尾下标差1个追上头下标
+
+        Q.elem[Q.rear]=e;
+		Q.rear=(Q.rear+1)%Maxsize;
+        return OK;
+}
+Status DeQueue(SqQueue &Q,QElemType &e)
+{
+        if(Q.front==Q.rear)               //判断队空
+                return ERROR;
+
+        e=Q.elem[Q.front];
+        Q.front=(Q.front+1)%Maxsize;
+		return OK;
+}
+void Print(SqQueue Q)
+{
+        QElemType e=0;
+        int len=QueueLength(Q);
+        if(Q.front==Q.rear){
+                cout<<"NULL"<<endl;
+        }
+        else{
+			for(int i=0;i<len;i++){
+                DeQueue(Q,e);
+                cout<<e<<" ";
+			}
+        }
+}
+int main()
+{
+    int a[100],e;
+    SqQueue Q;
+    InitQueue(Q);
+    for(int i=0;;i++)
+    {
+        cin>>a[i];
+        if(a[i]==-2)
+        {
+                break;
+        }
+        if(a[i]==-1)
+        {
+                DeQueue(Q,e);
+        }
+        else{
+        EnQueue(Q,a[i]);
+        }
+    }
+    Print(Q);
+    return 0;
+}
