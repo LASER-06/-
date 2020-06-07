@@ -1,0 +1,304 @@
+/*
+二叉树的性质：
+1.在二叉树的第i层至多有2^(i-1)个结点（每1层的结点数）
+2.深度为k的二叉树至多含2^k -1个结点（）
+3.对任一颗二叉树若含有N0个叶子节点，N2个度为2的结点，存在：N0 = N2+1。
+4.具有N个结点的完全二叉树深度为log2(N)+1 下取整。
+5.太多，自行查阅。
+
+二叉链表的定义：(若是3叉链表的话则多于加一个双亲指针)
+二叉树的遍历
+二叉树的非递归遍历
+
+*/
+//顺序树（EZ）：
+/*
+#include<iostream>
+using namespace std;
+#define MAXSIZE 100
+typedef char TElemtype;
+typedef TElemtype SqTree[MAXSIZE];
+SqTree T;
+*/
+//2叉链表树：
+#include<iostream>
+#include<queue>
+using namespace std;
+
+#define MAXSIZE 100
+typedef char TElemtype;
+typedef int Status;
+
+typedef struct TNode{
+	TElemtype data;
+	struct TNode * lc,* rc;//左右孩子
+}TNode,*TP;
+
+//创建一个树：
+void CreateTree(TP &T){
+	TElemtype ch;
+	cin>>ch;
+	if(ch=='*')
+		T=NULL;
+	else{
+		if(!(T = new TNode))
+			exit(-1);
+		T->data = ch;
+		CreateTree(T->lc);
+		CreateTree(T->rc);
+	}
+}
+
+//计算树的深度：
+int Depth(TP &T){
+	int d,ld,rd;
+
+	if(T == NULL)
+		d = 0;
+	else{
+		ld = Depth(T->lc);
+		rd = Depth(T->rc);
+		d = 1+(ld>rd?ld:rd); //取左右深度较大的，加上根深度1。如果是为叶子节点则d为1。
+	}
+
+	return d;
+}
+
+
+
+//先序遍历（根左右）
+void PreOrder(TP T){
+	if(T!=NULL){
+		cout<<T->data<<' ';
+		PreOrder(T->lc);
+		PreOrder(T->rc);
+	}
+}
+//中序遍历（左根右）
+void InOrder(TP T){
+	if(T!=NULL){
+		InOrder(T->lc);
+		cout<<T->data<<' ';
+		InOrder(T->rc);
+	}
+}
+//后序遍历（左右根）
+void PostOrder(TP T){
+	if(T!=NULL){
+		PostOrder(T->lc);
+		PostOrder(T->rc);
+		cout<<T->data<<' ';
+	}
+}
+//层序遍历(使用系统队列)
+void LineOrder(TP T)
+{
+	queue<TP> q;
+	if(T)
+		q.push(T);
+	while(!q.empty())
+	{
+		cout<<q.front()->data<<' ';
+		if(q.front()->lc)
+			q.push(q.front()->lc);
+		if(q.front()->rc)
+			q.push(q.front()->rc);
+		q.pop();
+	}
+}
+//第a层序遍历：
+void LevelOrder(TP T,int a){
+	if(T == NULL || a<0)
+		return ;
+	//a什么时候为0，什么时候输出
+	if(a == 0)
+		cout<<T->data<<' ';
+	LevelOrder(T->lc,a-1);
+	LevelOrder(T->rc,a-1);
+	return ;
+}
+/*
+可搭配此main语句达成各层遍历
+main()
+{
+	if(d==0)
+		d++;
+	for(int i=0;i<d;i++){
+		LevelOrder(T,i)
+	}
+}
+*/
+
+
+
+//先序查找元素(根左右)：
+Status PreFind(TP T,TElemtype e,TP &p){
+	if(T){
+		if(T->data == e){
+			p = T;
+			return 1;
+		}
+		else{
+			if(PreFind(T->lc,e,p))
+				return 1;
+			else
+				return(PreFind(T->rc,e,p));
+		}
+	}
+	else return 0;
+}
+
+//统计叶子节点个数：count在外部传入，初时设置为0
+void CountLeaf(TP T,int &count){
+	if(T){
+		if((T->lc==NULL)&&(T->rc==NULL))
+			count++;
+		CountLeaf(T->lc,count);
+		CountLeaf(T->rc,count);
+	}
+}
+//int CountLeaf(TP T){
+//	int m,n;
+//	if(!T)
+//		return 0;
+//	if(!T->lc&&!T->rc)
+//		return 1;
+//	else{
+//		m = CountLeaf(T->lc);
+//		n = CountLeaf(T->rc);
+//		return (m+n);
+//	}
+//}
+
+
+
+
+typedef TP SElemtype;//栈存的是->以存根节点的指针
+
+//非递归：需要栈的使用
+typedef struct SqStack{
+	SElemtype elem[MAXSIZE];
+	int top;
+}SqStack;
+
+//初始化栈：
+void InitStack(SqStack &S){
+	S.top = 0;
+}
+
+//判断栈空：
+Status StackEmpty(SqStack S){
+	if(S.top == 0)
+		return 1;
+	else 
+		return 0;
+}
+
+//取栈顶元素：
+Status GetTop(SqStack &S,SElemtype &e){
+	if(StackEmpty(S))
+		return 0;
+	e = S.elem[S.top];
+	return 1;
+}
+
+//入栈：
+Status Push(SqStack &S,SElemtype e){
+	if(S.top == MAXSIZE-1)
+		return -1;   //栈满
+	else
+	{
+		S.top++;
+		S.elem[S.top] = e;
+		return 1;
+	}
+}
+
+//出栈：
+Status Pop(SqStack &S,SElemtype &e)
+{
+	if(StackEmpty(S))
+		return 0;
+	else
+	{
+		e = S.elem[S.top];
+		S.top--;
+		return 1;
+	}
+}
+
+
+//先序非递归：
+void PreOrder(TP T){
+	SqStack S;
+	InitStack(S);
+
+	TP p = NULL;
+
+	if(T!=NULL){
+		Push(S,T); //根入栈
+		while(!StackEmpty(S)){
+			Pop(S,p);
+			cout<<p->data<<' ';
+			if(p->rc!=NULL)     //因为栈是先入后出，所以右孩子先入栈。
+				Push(S,p->rc);
+			if(p->lc!=NULL)
+				Push(S,p->lc);
+		}
+	}
+}
+
+//中序非递归：
+void InOrder(TP T){
+	SqStack S;
+	InitStack(S);
+
+	TP p = T; 
+	
+	do{
+		while(p!=NULL){ //疯狂入左孩子,直到没有左孩子。
+			Push(S,p);
+			p = p->lc;
+		}
+		if(!StackEmpty(S)){
+			Pop(S,p);     //弹出子根，此时这个根没有左孩子
+			cout<<p->data<<' ';
+			p = p->rc;
+		}
+	}while(p!=NULL || !StackEmpty(S));//p为空 或者 栈为空就退出循环
+}
+
+//后续非递归：
+void PostOrder(TP T){
+	SqStack S;
+	InitStack(S);
+	int tag[MAXSIZE];
+
+	TP p=T,temp = NULL;
+	
+	do{
+		while(p!=NULL){ //扫描左节点入栈
+			Push(S,p);
+			tag[S.top]=0;
+			p = p->lc;
+		}
+		if(!StackEmpty(S)){ //
+			if(tag[S.top]==1){
+				Pop(S,temp);
+				cout<<temp->data<<' ';
+			}
+			else{
+				GetTop(S,p);
+				p = p->lc;  //扫描右节点
+				tag[S.top] = 1;
+			}
+		}
+	}while(p!=NULL || !StackEmpty(S));
+}
+
+//复制二叉树---3步骤：
+/*
+	1）为新的二叉树分配根节点，。当结点分配失败返回NULL；当根为NULL时也返回NULL
+	2）先复制左子树(递归)，在复制右子树(递归)，最后赋值根节点。
+	3）返回该新建节点。
+*/
