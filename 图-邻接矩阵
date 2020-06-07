@@ -1,0 +1,172 @@
+#include<iostream>
+#include<queue>
+using namespace std;
+#define MAXSIZE 100
+#define INF 50000
+typedef int ElemType;
+//迪杰斯特拉算法全局变量：
+bool S[MAXSIZE];//顶点集
+int D[MAXSIZE];//到各个顶点的最短路径
+int Pr[MAXSIZE];//记录前驱
+//Prim算法全局变量：
+int adjvex[MAXSIZE];//顶点下标
+int lowcost[MAXSIZE];//最小边权值
+
+//矩阵存储：
+typedef struct{
+ ElemType vexs[MAXSIZE];
+ int arcs[MAXSIZE][MAXSIZE];
+ int arcnum;
+ int vexnum;
+}Graph;
+
+//图的矩阵创造：
+void CreateGraph(Graph &G){
+  int i,j,k,w;
+  cin>>G.vexnum>>G.arcnum;
+  //vexs list:
+  for(i=0;i<G.vexnum;i++)
+     cin>>G.vexs[i];
+      //Init:
+  for(i=0;i<G.vexnum;i++)
+    for(j=0;j<G.vexnum;j++){
+       G.arcs[i][j]=INF;
+    }
+  //Create:
+  for(k=0;k<G.arcnum;k++){
+    cin>>i>>j;//图
+    cin>>i>>j>>w;//网
+    G.arcs[i][j]=1;G.arcs[j][i]=1;//无向图
+    G.arcs[i][j]=w;G.arcs[j][i]=w;//无向网
+    G.arcs[i][j]=1;//有向图
+    G.arcs[i][j]=w;//有向网
+  }
+}
+
+//矩阵DFS：
+//（非递归stack）将首个顶点下标入栈。
+//弹栈，并进行操作，更改标记。随后遍历邻接顶点。
+//若存在未被访问过的，下标入栈，进行操作更改标记
+//栈空时代表所有顶点遍历完毕。
+int visited[MAXSIZE] = {0};
+
+void DFS(Graph G,int i){
+ int j;
+ visited[i] = 1;
+ cout<<G.vexs[i]; //或者进行其他操作
+ for(j=0;j<G.vexnum;j++){
+  //路径存在 且 j未被访问
+  if(G.arcs[i][j]==1 && visited[j]==0)
+   DFS(G,j);
+ }
+}
+
+//矩阵BFS：
+void BFS(Graph G){
+ int i,j;
+ queue<int> Q;
+ //visited重新初始化
+ for(i=0;i<G.vexnum;i++)
+  visited[i] = 0;
+  
+ for(i=0;i<G.vexnum;i++){
+   if(visited[i] == 0){
+     visited[i] = 1;
+     cout<<G.vexs[i];//或进行其他操作
+     Q.push(i);//入队
+     while(!Q.empty()){
+       Q.pop();//出队
+       for(j=0;j<G.vexnum;j++){
+       //如果存在路径 && 未被访问过
+          if(G.arcs[i][j]==1 && visited[j]==0){
+             visited[j] = 1;
+             cout<<G.vexs[j];//或者进行其他操作
+             Q.push(j);//入队
+          }//if
+        }//for
+     }//while
+   }//if
+ }//for
+}
+
+//最小生成树（Prim）：
+void Prim(Graph G){
+ int min,i,j,k;
+ lowcost[0]=0;//v0加入生成树
+ adjvex[0]=0;
+ //初始化：
+ for(i=1;i<G.vexnum;i++){
+  lowcost[i]=G.arcs[0][i];//将v0与邻接点边的权值输入数组
+  adjvex[i]=0;
+ }
+ 
+ for(i=1;i<G.vexnum;i++){
+  min = INF;
+  j=1;
+  k=0;
+  //找v0最小权值边
+  while(j<G.vexnum){
+   if(lowcost[j]!=0 && lowcost[j]<min){
+    //如果权值w满足0<w<min
+    min = lowcost[j];
+    k=j;//k是min的下标
+   }
+   j++;
+  }//while
+  cout<<adjvex[k]<<k;//打印当前权值最小的边，或者进行其他操作。
+  lowcost[k]=0;//vk入生成树
+  
+  //更新表
+  for(j=1;j<G.vexnum;j++){
+   //顶点k的边权值小于尚未加入生成树的边权值
+   if(lowcost[j]!=0 && G.arcs[k][j]<lowcost[j]){
+    lowcost[j]=G.arcs[k][j];
+    //修改adjvex为新依附顶点
+    adjvex[j]=k;
+   }//if
+  }//for
+ }//大for
+}
+
+//最短路径 - Dijkstra算法 参数：图G、源点v
+void Dijkstra(Graph G, int v)
+{
+ //初始化
+ int n = G.vexnum;//n为图的顶点个数
+ for (int i = 0; i < n; i++){
+  S[i] = false;
+  D[i] = G.arcs[v][i];
+  if (D[i] < INF)
+   Pr[i] = v; //v与i连接，v为前驱
+  else Pr[i] = -1;
+ }
+ S[v] = true;
+ D[v] = 0;
+ //初始化结束,求最短路径，并加入S集
+ for (int i = 1; i < n; i++){
+  int min = INF;
+  int temp;
+  for (int w = 0; w < n; w++)
+   if (!S[w] && D[w] < min) //某点temp未加入s集，且为当前最短路径
+   {
+    temp = w;
+    min = D[w];
+   }
+  S[temp] = true;
+  //更新从源点出发至其余点的最短路径 通过temp
+  for (int w = 0; w < n; w++)
+   if (!S[w] && D[temp] + G.arcs[temp][w] < D[w])
+   {
+    D[w] = D[temp] + G.arcs[temp][w];
+    Pr[w] = temp;
+   }
+ }
+}
+//输出最短路径
+void Path(Graph G, int v)
+{
+ if (Pr[v] == -1)
+  return;
+ Path(G, Pr[v]);
+ cout << G.vexs[Pr[v]] << "->";
+}
