@@ -1,0 +1,87 @@
+/*
+顺序栈：
+定义
+初始化
+入栈
+出栈
+读栈顶
+是否为空栈
+清空栈
+*/
+#include<iostream>
+#include<stdlib.h>
+using namespace std;
+
+typedef int ElemType;
+typedef int Status;
+#define MAXSIZE 50
+#define OK 1
+#define ERROR 0
+#define OVERFLOW -1
+
+//栈的定义：
+typedef struct
+{
+	ElemType elem[MAXSIZE];
+	int top;
+}SqStack;
+
+//初始化:
+void InitStack(SqStack &S)
+{
+	S.top = 0;
+}
+
+//判断栈空：
+Status StackEmpty(SqStack S)
+{
+	if(S.top == 0)
+		return OK;
+	else 
+		return ERROR;
+}
+
+//入栈：
+Status Push(SqStack &S,ElemType e)
+{
+	if(S.top == MAXSIZE-1)
+		return OVERFLOW;   //栈满
+	else
+	{
+		S.top++;
+		S.elem[S.top] = e;
+		return OK;
+	}
+}
+
+//出栈：
+Status Pop(SqStack &S,ElemType &e)
+{
+	if(StackEmpty(S))
+		return ERROR;
+	else
+	{
+		e = S.elem[S.top];
+		S.top--;
+		return OK;
+	}
+}
+
+//读栈顶：
+Status GetTop(SqStack &S,ElemType &e)
+{
+	if(StackEmpty(S))
+		return ERROR;
+	e = S.elem[S.top];
+	return OK;
+}
+
+void print(SqStack S)
+{
+	ElemType e;
+	while(!StackEmpty(S))
+	{
+		Pop(S,e);
+		cout<<e<<' ';
+	}
+}
