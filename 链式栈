@@ -1,0 +1,68 @@
+#include<iostream>
+#include<stdlib.h>
+using namespace std;
+
+typedef int ElemType;
+typedef int Status;
+#define MAXSIZE 50
+#define OK 1
+#define ERROR 0
+#define OVERFLOW -1
+
+typedef struct Node
+{
+	ElemType data;
+	struct Node * next;
+}SNode,*SNodeP;
+
+typedef struct LinkS
+{
+	SNodeP top;
+	SNodeP base;
+	int stacksize;//栈容量
+}LinkS;
+
+//初始化：
+Status InitStack(LinkS &S)
+{
+	S.base = new SNode;
+	if(!S.base)
+		exit(OVERFLOW);
+	S.top = S.base;
+	S.stacksize = 0;
+	return OK;
+}
+//判断是否为空栈：
+Status StackEmpty(LinkS S)
+{
+	if(S.top == S.base)
+		return OK;
+	else
+		return ERROR;
+}
+
+//入栈：顶在动
+Status Push(LinkS &S,ElemType e)
+{
+	SNodeP p = new SNode;
+	p->data = e;
+	p->next = S.top;
+	S.top = p;
+	S.stacksize++;
+	return OK;
+}
+
+//出栈：顶在动
+Status Pop(LinkS &S,ElemType &e)
+{
+	SNodeP p;
+	if(StackEmpty(S))
+		return ERROR;
+	e = S.top->data;
+	p = S.top;
+	S.top = S.top->next;
+	delete(p);
+	p == NULL;
+	S.stacksize--;
+	return OK;
+}
